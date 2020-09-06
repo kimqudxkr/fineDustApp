@@ -14,17 +14,17 @@
     "moment": "^2.26.0",
     "morgan": "~1.9.1",
     "mysql": "^2.18.1",
-    "pug": "2.0.0-beta11"
+    "pug": "^2.0.0-beta11"
   },
-  "bin": { 
-    "app": "./bin/www" 
+  "bin": {
+    "app": "./bin/www"
   },
-  "pkg": { 
-    "assets": [ 
-      "views/**/*", 
+  "pkg": {
+    "assets": [
+      "views/**/*",
       "public/**/*",
-      "servers/**/*"  
-    ] 
+      "servers/**/*"
+    ]
   },
   "devDependencies": {
     "pkg": "^4.4.8"

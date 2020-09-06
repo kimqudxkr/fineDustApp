@@ -1,0 +1,108 @@
+extends ../layout
+
+block content
+    link(rel='stylesheet', href='/css/style.css')
+
+    script.
+
+        const today = () => {
+            var date = new Date(); 
+            var year = date.getFullYear(); 
+            var month = new String(date.getMonth()+1); 
+            var day = new String(date.getDate()); 
+
+            if(month.length == 1){ 
+                month = "0" + month; 
+            } 
+            if(day.length == 1){ 
+                day = "0" + day; 
+            }
+            var today = new String(year+'-'+month+'-'+day);
+
+            return today;
+        }
+
+        const writeContext = () => {      
+            const writer = document.getElementById('writer');
+            const password = document.getElementById('password');
+            const context = document.getElementById('context');
+            const date = today();
+            const title = document.getElementById('title');
+
+            if(!writer.value) {
+                alert('작성자를 입력해 주세요.');
+            } else if(!password.value) {
+                alert('비밀번호를 입력해 주세요.');
+            } else if(!title.value) {
+                alert('제목을 입력해 주세요.');
+            } else if(!context.value) {
+                alert('내용을 입력해 주세요.');
+            } else {
+                $.ajax({
+                    data: {
+                        'writer': writer.value,
+                        'password': password.value,
+                        'context': context.value,
+                        'date': date,
+                        'title': title.value
+                    }, 
+                    type: 'get', 
+                    dataType : 'html', 
+                    url: "/write/api/insert", 
+                    contentType: 'application/json', 
+                    success: (log) => {
+                        console.log('ajax '+log);
+                        setTimeout(function() { location.href='/board';}, 1000);
+                    },
+                    error: (err) => {
+                        console.log(err)
+                    }
+                })
+            }
+        }
+
+    #support-container.container-fluid
+    p
+    table(class='table table-bordered')
+        tr
+            th(style='text-align:center ') 작성자 
+            td
+                input(
+                    type='text'
+                    id='writer'
+                )
+            th(style='text-align:center') 비밀번호 
+            td
+                input(
+                    type="text"
+                    id='password'
+                )
+        tr
+            th(style='text-align:center') 제목 
+            td(colspan='3')
+                input(
+                    type='text'
+                    id='title'
+                    class='form-control'
+                )
+        tr(height='300px')
+            th(style='text-align:center') 내용
+            td(colspan='3')
+                textarea(
+                    id='context'
+                    class='form-control'
+                    style='height:300px'
+                    cols='30'
+                )
+
+    div(class='btn-toolbar pull-right')
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick='writeContext()'
+        ) 저장
+
+        button.btn.btn-primary(
+            type='button'
+            onclick="location.href='/board'"
+        ) 취소
