@@ -22,37 +22,62 @@ block content
             return today;
         }
         
-        const modifyContext = () => {      
-            const password = document.getElementById('password');
-            const context = document.getElementById('context');
-            const date = today();
-            const title = document.getElementById('title');
-            const no = document.getElementById('no');
+        const checkPassword = (password, no) => {
+            let result;
 
-            if(!password.value) {
+            $.ajax({
+                    data: {
+                        'password': password,
+                        'no': no
+                    }, 
+                    type: 'get', 
+                    dataType : 'html', 
+                    async: false,
+                    url: "/context/api/check", 
+                    contentType: 'application/json', 
+                    success: (para) => {
+                        result=para;
+                    },
+                    error: (err) => {
+                        console.log(err);
+                        result='n';
+                    }
+            })
+            console.log('판정결과 : '+result);
+            return result;
+        }
+
+        const modifyContext = () => {      
+            const password = document.getElementById('password').value;
+            const context = document.getElementById('context').value;
+            const date = today();
+            const title = document.getElementById('title').value;
+            const no = document.getElementById('no').value;
+
+            if(!password) {
                 alert('비밀번호를 입력해 주세요.');
-            } else if(!title.value) {
+            } else if(!title) {
                 alert('제목을 입력해 주세요.');
-            } else if(!context.value) {
+            } else if(!context) {
                 alert('내용을 입력해 주세요.');
-            } else if(no.value != password.value) {
+            } else if(checkPassword(password,no)==='n') {
                 alert('등록했던 비밀번호와 다릅니다!');
             } else {
                 $.ajax({
-                    data: {
-                        'context': context.value,
+                    data: JSON.stringify({
+                        'context': context,
                         'date': date,
-                        'title': title.value,
-                        'no': no.value
-                    }, 
-                    type: 'get', 
+                        'title': title,
+                        'no': no
+                    }), 
+                    type: 'post', 
                     dataType : 'html', 
                     url: "/context/api/modify", 
                     contentType: 'application/json', 
                     success: (log) => {
                         alert('수정완료');
                         console.log('ajax '+log);
-                        setTimeout(function() { location.href='/board';}, 1000);
+                        location.href='/board';
                     },
                     error: (err) => {
                         console.log(err)
@@ -63,23 +88,24 @@ block content
 
         const deleteContext = () => {
             if(confirm("정말로 삭제하시겠습니까?")) {
-                const no = document.getElementById('no');
+                const no = document.getElementById('no').value;
+                const password = document.getElementById('password').value;
 
-                if(no.value != password.value) {
+                if(!checkPassword(password,no)) {
                     alert('등록했던 비밀번호와 다릅니다!');
                 } else {
                     $.ajax({
-                        data: {
-                            'no': no.value
-                        }, 
-                        type: 'get', 
+                        data: JSON.stringify({
+                            'no': no
+                        }), 
+                        type: 'post', 
                         dataType : 'html', 
                         url: "/context/api/delete", 
                         contentType: 'application/json', 
                         success: (log) => {
                             alert('삭제완료');
                             console.log('ajax '+log);
-                            setTimeout(function() { location.href='/board';}, 1000);
+                            location.href='/board';
                         },
                         error: (err) => {
                             console.log(err)

@@ -22,28 +22,28 @@ block content
         }
 
         const writeContext = () => {      
-            const writer = document.getElementById('writer');
-            const password = document.getElementById('password');
-            const context = document.getElementById('context');
+            const writer = document.getElementById('writer').value;
+            const password = document.getElementById('password').value;
+            const context = document.getElementById('context').value;
             const date = today();
-            const title = document.getElementById('title');
+            const title = document.getElementById('title').value;
 
-            if(!writer.value) {
+            if(!writer) {
                 alert('작성자를 입력해 주세요.');
-            } else if(!password.value) {
+            } else if(!password) {
                 alert('비밀번호를 입력해 주세요.');
-            } else if(!title.value) {
+            } else if(!title) {
                 alert('제목을 입력해 주세요.');
-            } else if(!context.value) {
+            } else if(!context) {
                 alert('내용을 입력해 주세요.');
             } else {
                 $.ajax({
                     data: {
-                        'writer': writer.value,
-                        'password': password.value,
-                        'context': context.value,
+                        'writer': writer,
+                        'password': password,
+                        'context': context,
                         'date': date,
-                        'title': title.value
+                        'title': title
                     }, 
                     type: 'get', 
                     dataType : 'html', 
@@ -52,7 +52,7 @@ block content
                     success: (log) => {
                         alert('등록완료');
                         console.log('ajax '+log);
-                        setTimeout(function() { location.href='/board';}, 1000);
+                        location.href='/board';
                     },
                     error: (err) => {
                         console.log(err)

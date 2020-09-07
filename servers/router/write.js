@@ -14,9 +14,10 @@ router.get('/api/insert', (req, res, next) => {
   var gotD = req.param('date');
   var gotP = req.param('password');
 
-  connection.query('INSERT INTO btboard(title, writer, date, context, password)'+
-                    'VALUES(\''+gotT+'\', \''+gotW+'\', \''+gotD+'\', \''+gotC+'\', \''+gotP+'\')'
-                    , function(err, rows) {
+  let query = `INSERT INTO btboard(title, writer, date, context, password) 
+               VALUES('${gotT}','${gotW}','${gotD}','${gotC}','${gotP}')`
+               
+  connection.query(query, function(err, rows) {
     if(!err) {
       var log = 'sucess'
       console.log('query success');
