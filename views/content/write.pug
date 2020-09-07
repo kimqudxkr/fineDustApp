@@ -4,7 +4,6 @@ block content
     link(rel='stylesheet', href='/css/style.css')
 
     script.
-
         const today = () => {
             var date = new Date(); 
             var year = date.getFullYear(); 
@@ -51,6 +50,7 @@ block content
                     url: "/write/api/insert", 
                     contentType: 'application/json', 
                     success: (log) => {
+                        alert('등록완료');
                         console.log('ajax '+log);
                         setTimeout(function() { location.href='/board';}, 1000);
                     },
@@ -74,7 +74,7 @@ block content
             th(style='text-align:center') 비밀번호 
             td
                 input(
-                    type="text"
+                    type="password"
                     id='password'
                 )
         tr
