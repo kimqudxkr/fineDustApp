@@ -29,9 +29,7 @@ router.get('/api/modify', (req, res, next) => {
   var gotD = req.param('date');
   var num = req.param('no');
   
-  connection.query('UPDATE btboard SET'+
-                    'title=\''+gotT+'\', context=\''+gotC+'\', date=\''+gotD+'\''
-                    +'WHERE no='+num , function(err, rows) {
+  connection.query('UPDATE btboard SET title=\''+gotT+'\', context=\''+gotC+'\', date=\''+gotD+'\' WHERE no='+num , function(err, rows) {
     if(!err) {
       var log = 'sucess'
       console.log('query success');
