@@ -39,30 +39,60 @@ const getUltraFineDustStatus = (value) => {
   }
 }
 
+const range = ['MAX(PM10_0) <= 15', 'MAX(PM10_0) > 15 AND MAX(PM10_0) <= 40', 'MAX(PM10_0) > 40 AND MAX(PM10_0) <= 75',
+                'MAX(PM10_0) > 75', 'MAX(PM2_5) <= 15', 'MAX(PM2_5) > 15 AND MAX(PM2_5) <= 35', 
+                'MAX(PM2_5) > 35 AND MAX(PM2_5) <= 75', 'MAX(PM2_5) > 75'];
+
+const countQuery = (time) => {
+  let subQuery='';
+  for(let i=0; i<range.length; i++) {
+    subQuery += `(SELECT COUNT(*) as data FROM (
+      (SELECT * FROM finedust_tb `;
+    if(time)
+      subQuery += time;
+    subQuery += ` GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING ${range[i]})t)) union all `
+  }
+  let query2 = `SELECT * FROM (` + subQuery;
+  let resQuery = query2.substring(0,query2.length-11) + `)t`;
+
+  return resQuery;
+}
+
+const selectOption = (params) => {
+  switch (params.setting) {
+    case "user":
+      start = `${params.startDay} ${params.startHour}:00:00`;
+      end = `${params.endDay} ${params.endHour}:00:00`;
+      time = `rgst_dt >= '${start}' AND rgst_dt <= '${end}'`
+      return time;
+    case "quater":
+      time = `quarter(rgst_dt) = ${params.quater}`;
+      return time;
+    case "year":
+      time = `year(rgst_dt) = ${params.year}`;
+      return time;
+    case "month":
+      time = `month(rgst_dt) = ${params.month}`;
+      return time;
+    case "week":
+      if(params.week == 5) {
+        start = `${params.year}-${params.month}-${(params.week-1)*7+1}`
+        end = `'${params.year}-${params.month*1+1}-01'`
+        time = `rgst_dt >= '${start}' AND rgst_dt < ${end}`
+      } else {
+        start = `${params.year}-${params.month}-${(params.week-1)*7+1}`
+        end = `${params.year}-${params.month}-${params.week*7+1}`
+        time = `rgst_dt >= '${start}' AND rgst_dt < '${end}'`
+      }
+      return time;
+  }
+}
+
 /* GET info page. */
 router.get('/', (req, res, next) => {
   let countData;
-
-  const query1 = `SELECT * FROM (
-    (SELECT COUNT(*) as data FROM (
-      (SELECT * FROM finedust_tb GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM10_0) <= 15)t)) union all
-    (SELECT COUNT(*) FROM (
-      (SELECT * FROM finedust_tb GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM10_0) > 15 AND MAX(PM10_0) <= 40)t)) union all
-    (SELECT COUNT(*) FROM (
-      (SELECT * FROM finedust_tb GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM10_0) > 40 AND MAX(PM10_0) <= 75)t)) union all
-    (SELECT COUNT(*) FROM (
-      (SELECT * FROM finedust_tb GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM10_0) > 75)t)) union all
-    (SELECT COUNT(*) FROM (
-      (SELECT * FROM finedust_tb GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM2_5) <= 15)t)) union all
-    (SELECT COUNT(*) FROM (
-      (SELECT * FROM finedust_tb GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM2_5) > 15 AND MAX(PM2_5) <= 35)t)) union all
-    (SELECT COUNT(*) FROM (
-      (SELECT * FROM finedust_tb GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM2_5) > 35 AND MAX(PM2_5) <= 75)t)) union all
-    (SELECT COUNT(*) FROM (
-      (SELECT * FROM finedust_tb GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM2_5) > 75)t))                
-     )t`;
-
-  connection.query(query1, (err,rows) => {
+  
+  connection.query(countQuery(false), (err,rows) => {
   if(!err) {
     countData = rows
     } else {
@@ -109,38 +139,9 @@ router.get('/', (req, res, next) => {
 
 router.get('/api/search', (req, res, next) => {
   const params = req.query;
-  let start;
-  let end;
   let time;
 
-  switch (params.setting) {
-    case "user":
-      start = `${params.startDay} ${params.startHour}:00:00`;
-      end = `${params.endDay} ${params.endHour}:00:00`;
-      time = `rgst_dt >= '${start}' AND rgst_dt <= '${end}'`
-      break;
-    case "quater":
-      time = `quarter(rgst_dt) = ${params.quater}`;
-      break;
-    case "year":
-      time = `year(rgst_dt) = ${params.year}`;
-      break;
-    case "month":
-      time = `month(rgst_dt) = ${params.month}`;
-      break;
-    case "week":
-      if(params.week == 5) {
-        start = `${params.year}-${params.month}-${(params.week-1)*7+1}`
-        end = `'${params.year}-${params.month*1+1}-01'`
-        time = `rgst_dt >= '${start}' AND rgst_dt < ${end}`
-      } else {
-        start = `${params.year}-${params.month}-${(params.week-1)*7+1}`
-        end = `${params.year}-${params.month}-${params.week*7+1}`
-        time = `rgst_dt >= '${start}' AND rgst_dt < '${end}'`
-      }
-      console.log(end);
-      break;
-  }
+  time = selectOption(params);
 
   let query = `
         SELECT MAX(pm10_0) AS dust, 
@@ -189,58 +190,13 @@ router.get('/api/search', (req, res, next) => {
 
 router.get('/api/search/count', (req, res, next) => {
   const params = req.query;
-  let start;
-  let end;
   let time;
 
-  switch (params.setting) {
-    case "user":
-      start = `${params.startDay} ${params.startHour}:00:00`;
-      end = `${params.endDay} ${params.endHour}:00:00`;
-      time = `rgst_dt >= '${start}' AND rgst_dt <= '${end}'`
-      break;
-    case "quater":
-      time = `quarter(rgst_dt) = ${params.quater}`;
-      break;
-    case "year":
-      time = `year(rgst_dt) = ${params.year}`;
-      break;
-    case "month":
-      time = `month(rgst_dt) = ${params.month}`;
-      break;
-    case "week":
-      if(params.week == 5) {
-        start = `${params.year}-${params.month}-${(params.week-1)*7+1}`
-        end = `'${params.year}-${params.month*1+1}-01'`
-        time = `rgst_dt >= '${start}' AND rgst_dt < ${end}`
-      } else {
-        start = `${params.year}-${params.month}-${(params.week-1)*7+1}`
-        end = `${params.year}-${params.month}-${params.week*7+1}`
-        time = `rgst_dt >= '${start}' AND rgst_dt < '${end}'`
-      }
-      break;
-  }
+  time = selectOption(params);
 
-  let query = `SELECT * FROM (
- (SELECT COUNT(*) as data FROM (
-   (SELECT * FROM finedust_tb WHERE ${time} GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM10_0) <= 15)t)) union all
- (SELECT COUNT(*) FROM (
-   (SELECT * FROM finedust_tb WHERE ${time} GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM10_0) > 15 AND MAX(PM10_0) <= 40)t)) union all
- (SELECT COUNT(*) FROM (
-   (SELECT * FROM finedust_tb WHERE ${time} GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM10_0) > 40 AND MAX(PM10_0) <= 75)t)) union all
- (SELECT COUNT(*) FROM (
-   (SELECT * FROM finedust_tb WHERE ${time} GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM10_0) > 75)t)) union all
- (SELECT COUNT(*) FROM (
-   (SELECT * FROM finedust_tb WHERE ${time} GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM2_5) <= 15)t)) union all
- (SELECT COUNT(*) FROM (
-   (SELECT * FROM finedust_tb WHERE ${time} GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM2_5) > 15 AND MAX(PM2_5) <= 35)t)) union all
- (SELECT COUNT(*) FROM (
-   (SELECT * FROM finedust_tb WHERE ${time} GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM2_5) > 35 AND MAX(PM2_5) <= 75)t)) union all
- (SELECT COUNT(*) FROM (
-   (SELECT * FROM finedust_tb WHERE ${time} GROUP BY SUBSTR(rgst_dt, 1, 10) HAVING MAX(PM2_5) > 75)t))                
-  )t`;
+  let timeQuery = `WHERE ${time}`;
 
-  connection.query(query, (err, rows, fields) => {
+  connection.query(countQuery(timeQuery), (err, rows, fields) => {
     if (!err) {
       let html = `
       <div class="row">미세먼지 - |
