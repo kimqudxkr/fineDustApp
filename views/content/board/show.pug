@@ -1,0 +1,108 @@
+extends ../../layout
+
+block content
+    link(rel='stylesheet', href='/css/style.css')
+
+    script.
+
+        const checkPassword = (password, no) => {
+            let result;
+
+            $.ajax({
+                    data: {
+                        'password': password,
+                        'no': no
+                    }, 
+                    type: 'get', 
+                    dataType : 'html', 
+                    async: false,
+                    url: "/context/api/check", 
+                    contentType: 'application/json', 
+                    success: (para) => {
+                        result=para;
+                    },
+                    error: (err) => {
+                        console.log(err);
+                        result='n';
+                    }
+            })
+            console.log('판정결과 : '+result);
+            return result;
+        }
+
+        const toModify = (no) => { 
+            const password = document.getElementById('password').value;
+
+            if(!password) {
+                alert('초기에 설정했던 비밀번호를 입력하세요.');
+            } else if(checkPassword(password,no)!='y') {
+                alert('등록했던 비밀번호와 다릅니다!');
+            } else {
+               location.href="context?no="+no;
+            }
+        }
+
+        const toDelete = (no) => {
+            const password = document.getElementById('password').value;
+            if(!password) {
+                alert('초기에 설정했던 비밀번호를 입력하세요.');
+            } else if(checkPassword(password,no)=='n') {
+                alert('등록했던 비밀번호와 다릅니다!');
+            } else if(confirm("정말로 삭제하시겠습니까?")){
+                $.ajax({
+                    data: JSON.stringify({
+                        'no': no
+                    }), 
+                    type: 'post', 
+                    dataType : 'html', 
+                    async: false,
+                    url: "/context/api/delete", 
+                    contentType: 'application/json', 
+                    success: (log) => {
+                        alert('삭제완료');
+                        console.log('ajax '+log);
+                        location.href='/board';
+                    },
+                    error: (err) => {
+                        console.log(err)
+                    }
+                })
+            }
+        }
+
+    #support-container.container-fluid
+    p
+    p(align='center', style='font-size:30px') 게시글 조회
+    table(class='table table-bordered', style="width:500px; margin-left:auto; margin-right:auto")
+        tr
+            th(style='text-align:center ') 번호
+            td(style='width:100px') #{result[0].no}
+            th(style='text-align:center ') 작성자 
+            td(style='width:200px') #{result[0].writer}
+        tr
+            th(style='text-align:center') 제목 
+            td(colspan='5') #{result[0].title}
+        tr(height='300px')
+            th(style='text-align:center') 내용
+            td(colspan='5') #{result[0].context}
+
+    div(class='btn-toolbar pull-right', style='margin-right:495px')
+        input(type='password', id='password', placeholder='비밀번호 입력', style='text-align:center; margin-right:10px; width:150px')
+                    
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick=`toModify(${result[0].no})`
+        ) 수정
+
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick=`toDelete(${result[0].no})`
+        ) 삭제
+
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick="location.href='/board'"
+        ) 목록

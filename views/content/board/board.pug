@@ -1,4 +1,4 @@
-extends ../layout
+extends ../../layout
 
 block content
     link(rel='stylesheet', href='/css/style.css')
@@ -7,7 +7,7 @@ block content
         div(style='text-align:center')
             p
 
-            table(class='table table-striped table-hover')
+            table(class='table table-striped table-hover', style="width:800px; margin-left:auto; margin-right:auto")
                 thead
                     tr
                         th 번호
@@ -19,12 +19,12 @@ block content
                         tr
                             td=i.no
                             td
-                                a(href='/context?no='+i.no)=i.title
+                                a(href='/show?no='+i.no)=i.title
                             td=i.writer
                             td=i.date
-            hr
-        button.btn.btn-primary(
-            style='float:right'
-            type='button'
-            onclick="location.href='/write'"
-        ) 글쓰기
+
+            button.btn.btn-primary(
+                style='float:right; margin-right:340px'
+                type='button'
+                onclick="location.href='/write'"
+            ) 글쓰기

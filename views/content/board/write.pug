@@ -1,4 +1,4 @@
-extends ../layout
+extends ../../layout
 
 block content
     link(rel='stylesheet', href='/css/style.css')
@@ -63,19 +63,22 @@ block content
 
     #support-container.container-fluid
     p
-    table(class='table table-bordered')
+    p(align='center', style='font-size:30px') 새 게시글 작성
+    table(class='table table-bordered', style="width:500px; margin-left:auto; margin-right:auto")
         tr
-            th(style='text-align:center ') 작성자 
+            th(style='text-align:center; width:100px') 작성자 
             td
                 input(
                     type='text'
                     id='writer'
+                    class='form-control'
                 )
-            th(style='text-align:center') 비밀번호 
+            th(style='text-align:center; width:100px') 비밀번호 
             td
                 input(
                     type="password"
                     id='password'
+                    class='form-control'
                 )
         tr
             th(style='text-align:center') 제목 
@@ -85,17 +88,16 @@ block content
                     id='title'
                     class='form-control'
                 )
-        tr(height='300px')
-            th(style='text-align:center') 내용
+        tr(height='250px')
+            th(style='text-align:center; cell:middle; top:150px') 내용
             td(colspan='3')
                 textarea(
                     id='context'
                     class='form-control'
-                    style='height:300px'
+                    style='height:250px'
                     cols='30'
                 )
-
-    div(class='btn-toolbar pull-right')
+    div(class='btn-toolbar pull-right', style='margin-right:500px')
         button.btn.btn-primary(
             type='button'
             class='btn mr-2'

@@ -6,39 +6,25 @@ block content
     $( function() {
       $("#startDate").datepicker({defaultDate: new Date()}).val(moment().format('YYYY-MM-DD'));
       $("#endDate").datepicker({defaultDate: new Date()}).val(moment().format('YYYY-MM-DD'));
-      $("#startDay").datepicker({defaultDate: new Date()}).val(moment().format('YYYY-MM-DD'));
-      $("#endDay").datepicker({defaultDate: new Date()}).val(moment().format('YYYY-MM-DD'));
     });
 
     const infoSearching = () => {
       search();
-      /*window.setInterval(() => {
+      window.setInterval(() => {
         search();
-      }, 10000);*/
+      }, 10000);
     }
-    
+
     const search = () => {
       const form =  document.getElementById("infoSearchForm");
       
-      const s = document.getElementById("term");
-      const setting = s.options[s.selectedIndex].value;
-
       $.ajax({
         data: {
-          'setting': setting,
-          //'time': $("[name=time]:checked").val(),
-          //'startDate': form.startDate.value,
-          //'startTime': form.startTime.value,
-          //'endDate': form.endDate.value,
-          //'endTime': form.endTime.value,
-          'startDay': document.getElementById("startDay").value,
-          'startHour': document.getElementById("startHour").value,
-          'endDay': document.getElementById("endDay").value,
-          'endHour': document.getElementById("endHour").value,
-          'year': document.getElementById("yearTerm").value,
-          'quater': document.getElementById("quaterTerm").value,
-          'month': document.getElementById("monthTerm").value,
-          'week': document.getElementById("weekTerm").value,
+          'time': $("[name=time]:checked").val(),
+          'startDate': form.startDate.value,
+          'startTime': form.startTime.value,
+          'endDate': form.endDate.value,
+          'endTime': form.endTime.value,
         }, 
         type: 'get', 
         dataType : 'html', 
@@ -51,84 +37,13 @@ block content
           console.log(err)
         }
       })
-
-      $.ajax({
-        data: {
-          'setting': setting,
-          //'time': $("[name=time]:checked").val(),
-          //'startDate': form.startDate.value,
-          //'startTime': form.startTime.value,
-          //'endDate': form.endDate.value,
-          //'endTime': form.endTime.value,
-          'startDay': document.getElementById("startDay").value,
-          'startHour': document.getElementById("startHour").value,
-          'endDay': document.getElementById("endDay").value,
-          'endHour': document.getElementById("endHour").value,
-          'year': document.getElementById("yearTerm").value,
-          'quater': document.getElementById("quaterTerm").value,
-          'month': document.getElementById("monthTerm").value,
-          'week': document.getElementById("weekTerm").value,
-        }, 
-        type: 'get', 
-        dataType : 'html', 
-        url: "/info/api/search/count", 
-        contentType: 'application/json', 
-        success: (result) => {
-          $(".fine").html(result);
-        },
-        error: (err) => {
-          console.log(err)
-        }
-      })
     }
-
-    const selectDate = (e) => {
-      if(e.value != 'user') {
-        document.getElementsByName("startDay")[0].disabled = true;
-        document.getElementsByName("endDay")[0].disabled = true;
-        document.getElementsByName("startHour")[0].disabled = true;
-        document.getElementsByName("endHour")[0].disabled = true;
-      } else {
-        document.getElementsByName("startDay")[0].disabled = false;
-        document.getElementsByName("endDay")[0].disabled = false;
-        document.getElementsByName("startHour")[0].disabled = false;
-        document.getElementsByName("endHour")[0].disabled = false;
-      }
-
-      if(e.value == 'year') 
-        document.getElementsByName("yearTerm")[0].style.display = "inline";
-      else 
-        document.getElementsByName("yearTerm")[0].style.display = "none";
-      
-      if(e.value == 'quater') {
-        document.getElementsByName("yearTerm")[0].style.display = "inline";
-        document.getElementsByName("quaterTerm")[0].style.display = "inline";
-      } else {
-        document.getElementsByName("quaterTerm")[0].style.display = "none";
-      }
-
-      if(e.value == 'month') {
-        document.getElementsByName("yearTerm")[0].style.display = "inline";
-        document.getElementsByName("monthTerm")[0].style.display = "inline";
-      } else {
-        document.getElementsByName("monthTerm")[0].style.display = "none";
-      }
-
-      if(e.value == 'week') {
-        document.getElementsByName("yearTerm")[0].style.display = "inline";
-        document.getElementsByName("monthTerm")[0].style.display = "inline";
-        document.getElementsByName("weekTerm")[0].style.display = "inline";
-      }
-      else 
-        document.getElementsByName("weekTerm")[0].style.display = "none";
-    }
-
   #info-container.container-fluid
     .row.info-title
       .col-12 측정자료 조회
     .row.info-search
       .col-12
-        //-.row
+        .row
           .col-2 ■ 데이터 구분
           .col-10 
             label
@@ -140,7 +55,7 @@ block content
             label
               input#day(type="radio", name="time", value="18")
               | 초당 데이터
-        //-.row
+        .row
           .col-2 ■ 조회기간
           .col-10 
             form#infoSearchForm(name="infoSearchForm", method="get")
@@ -156,64 +71,13 @@ block content
             button.btn.btn-primary(onClick='infoSearching()') 검색
             //- button.btn.btn-primary 그래프보기
             //- button.btn.btn-primary 엑셀
-
-        //-과제
-        .row
-          .col-2 ■ 기간 설정
-          .col-2
-            select#term(type="text", name="term", style="width:150px", onchange="selectDate(this)")
-              option(value="user") 사용자 정의
-              option(value="year") 연간
-              option(value="quater") 분기간
-              option(value="month") 월간
-              option(value="week") 주간
-          .col-8
-            select#yearTerm(type='text', name='yearTerm', style='display:none; margin:5px')
-              -for(let i=2020; i>2005;i--)
-                option(value=i)=(i)+'년'
-            select#quaterTerm(type='text', name='quaterTerm', style='display:none; margin:5px')
-              -for(let i=1; i<5;i++)
-                option(value=i)=(i)+'사분기'
-            select#monthTerm(type='text', name='monthTerm', style='display:none; margin:5px')
-              -for(let i=1; i<13;i++)
-                option(value=i)=(i)+'월'
-            select#weekTerm(type='text', name='weekTerm', style='display:none; margin:5px')
-              -for(let i=1; i<6;i++)
-                option(value=i)=(i)+'주차'
-            button.btn.btn-primary(onClick='infoSearching()') 조회
-        .row
-          .col-2 ■ 사용자 정의 설정
-          .col-3 시작 날짜 : 
-            input#startDay(type="date", name="startDay", style="margin:8px")
-            select#startHour(name="startHour", style="width:60px; margin:8px")
-                -for (let i = 1; i < 25; i++)
-                  option(value=i < 10 ? '0' + i : i)= (i < 10 ? '0' + i : i)+'시'
-          .col-3 종료 날짜 : 
-            input#endDay(type="date", name="endDay", style="margin:8px")  
-            select#endHour(name="endHour", style="width:60px; margin:8px")
-                -for (let i = 1; i < 25; i++)
-                  option(value=i < 10 ? '0' + i : i)= (i < 10 ? '0' + i : i)+'시'
-
-    .row.info-count
-      .fine.col-12
-        .row 미세먼지 - |
-          .col-2 좋음 : #{countData[0].data}회
-          .col-2 보통 : #{countData[1].data}회
-          .col-2 나쁨 : #{countData[2].data}회
-          .col-2 매우나쁨 : #{countData[3].data}회
-        .row 초미세먼지 - |
-          .col-2 좋음 : #{countData[4].data}회
-          .col-2 보통 : #{countData[5].data}회
-          .col-2 나쁨 : #{countData[6].data}회
-          .col-2 매우나쁨 : #{countData[7].data}회
-
     .row.info-table
       .col-12
         div 측정자료(수치) 
         table#info-table
           thead
             tr
-              th(rowspan="2") 날짜<br/>(연-월-일)
+              th(rowspan="2") 날짜<br/>(월-일-시)
               th(colspan="2") PM<pre>10</pre><br/>(㎍/㎥)
               th(colspan="2") PM<pre>2.5</pre><br>(㎍/㎥)
               th(rowspan="2") 풍향
@@ -221,8 +85,8 @@ block content
               th(rowspan="2") 온도
               th(rowspan="2") 습도
             tr
-              th(colspan="2") 하루 최대
-              th(colspan="2") 하루 최대
+              th(colspan="2") 1시간
+              th(colspan="2") 1시간
           tbody
             each map in datas
               tr

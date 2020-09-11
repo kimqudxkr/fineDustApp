@@ -4,22 +4,22 @@ const connection = require("../connection");
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('content/write');
+  res.render('content/board/write');
 })
 
 router.get('/api/insert', (req, res, next) => {
-  var gotW = req.param('writer');
-  var gotT = req.param('title');
-  var gotC = req.param('context');
-  var gotD = req.param('date');
-  var gotP = req.param('password');
+  const gotW = req.param('writer');
+  const gotT = req.param('title');
+  const gotC = req.param('context');
+  const gotD = req.param('date');
+  const gotP = req.param('password');
 
   let query = `INSERT INTO btboard(title, writer, date, context, password) 
                VALUES('${gotT}','${gotW}','${gotD}','${gotC}','${gotP}')`
                
   connection.query(query, function(err, rows) {
     if(!err) {
-      var log = 'sucess'
+      const log = 'sucess'
       console.log('query success');
       res.send(log);
     } else {

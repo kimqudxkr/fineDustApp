@@ -1,0 +1,116 @@
+extends ../../layout
+
+block content
+    link(rel='stylesheet', href='/css/style.css')
+
+    script.
+        
+        const today = () => {
+            const date = new Date(); 
+            const year = date.getFullYear(); 
+            const month = new String(date.getMonth()+1); 
+            const day = new String(date.getDate()); 
+
+            if(month.length == 1){ 
+                month = "0" + month; 
+            } 
+            if(day.length == 1){ 
+                day = "0" + day; 
+            }
+            const today = new String(year+'-'+month+'-'+day);
+
+            return today;
+        }
+        
+        const modifyContext = () => {
+            const context = document.getElementById('context').value;
+            const date = today();
+            const title = document.getElementById('title').value;
+            const no = document.getElementById('no').value;
+
+            if(!title) {
+                alert('제목을 입력해 주세요.');
+            } else if(!context) {
+                alert('내용을 입력해 주세요.');
+            } else {
+                $.ajax({
+                    data: JSON.stringify({
+                        'context': context,
+                        'date': date,
+                        'title': title,
+                        'no': no
+                    }), 
+                    type: 'post', 
+                    dataType : 'html', 
+                    url: "/context/api/modify", 
+                    contentType: 'application/json', 
+                    success: (log) => {
+                        alert('수정완료');
+                        console.log('ajax '+log);
+                        location.href='/board';
+                    },
+                    error: (err) => {
+                        console.log(err)
+                    }
+                })
+            }
+        }
+
+        const goBack = () => {
+            window.history.back();
+        }
+
+    #support-container.container-fluid
+    p
+    p(align='center', style='font-size:30px') 게시글 수정
+    table(class='table table-bordered', style="width:500px; margin-left:auto; margin-right:auto")
+        tr
+            th(style='text-align:center') 번호
+            td
+                input(
+                    type='text'
+                    value=result[0].no
+                    id='no'
+                    disabled
+                    style='width:100px'
+                )
+            th(style='text-align:center') 작성자 
+            td
+                input(
+                    type='text'
+                    value=result[0].writer
+                    id='writer'
+                    disabled
+                    style='width:200px'
+                )
+        tr
+            th(style='text-align:center') 제목 
+            td(colspan='5')
+                input(
+                    type='text'
+                    id='title'
+                    class='form-control'
+                    value=result[0].title
+                )
+        tr(height='300px')
+            th(style='text-align:center') 내용
+            td(colspan='5')
+                textarea(
+                    id='context'
+                    class='form-control'
+                    style='height:300px'
+                    cols='30'
+                ) #{result[0].context}
+
+    div(class='btn-toolbar pull-right', style='margin-right:495px')
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick='modifyContext()'
+        ) 수정
+
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick='goBack()'
+        ) 취소

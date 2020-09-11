@@ -12,6 +12,8 @@ const supportRouter = require('./servers/router/support');
 const boardRouter = require('./servers/router/board');    //게시판
 const writeRouter = require('./servers/router/write');
 const contextRouter = require('./servers/router/context');
+const databydayRouter = require('./servers/router/databyday');
+const showRouter = require('./servers/router/show');
 
 const app = express();
 const config = require('./config.json')[app.get('env')];
@@ -35,6 +37,8 @@ app.use('/support', supportRouter);
 app.use('/board', boardRouter);   //게시판
 app.use('/write', writeRouter);
 app.use('/context', contextRouter);
+app.use('/databyday', databydayRouter);
+app.use('/show', showRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

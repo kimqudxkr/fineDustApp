@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
 
     connection.query(query, function(err, rows) {
       if(!err) {
-        res.render('content/board/context',{result:rows});
+        res.render('content/board/show',{result:rows});
       } else {
         console.log('query error : '+err);
         res.send(err);
@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
       });
   } else {
     console.log('no param');
-    res.render('content/board/context');
+    res.render('content/board/show');
     }
 })
 
@@ -70,7 +70,7 @@ router.post('/api/modify', (req, res, next) => {
 
 router.post('/api/delete', (req, res, next) => {
   const num = req.body.no;
-  let query = `DELETE FROM btboard WHERE no=${num}`;
+  const query = `DELETE FROM btboard WHERE no=${num}`;
 
   connection.query(query, function(err, rows) {
     if(!err) {
