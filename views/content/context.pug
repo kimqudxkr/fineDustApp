@@ -1,0 +1,180 @@
+extends ../layout
+
+block content
+    link(rel='stylesheet', href='/css/style.css')
+
+    script.
+        const today = () => {
+            var date = new Date(); 
+            var year = date.getFullYear(); 
+            var month = new String(date.getMonth()+1); 
+            var day = new String(date.getDate()); 
+
+            if(month.length == 1){ 
+                month = "0" + month; 
+            } 
+            if(day.length == 1){ 
+                day = "0" + day; 
+            }
+            var today = new String(year+'-'+month+'-'+day);
+
+            return today;
+        }
+        
+        const checkPassword = (password, no) => {
+            let result;
+
+            $.ajax({
+                    data: {
+                        'password': password,
+                        'no': no
+                    }, 
+                    type: 'get', 
+                    dataType : 'html', 
+                    async: false,
+                    url: "/context/api/check", 
+                    contentType: 'application/json', 
+                    success: (para) => {
+                        result=para;
+                    },
+                    error: (err) => {
+                        console.log(err);
+                        result='n';
+                    }
+            })
+            console.log('판정결과 : '+result);
+            return result;
+        }
+
+        const modifyContext = () => {      
+            const password = document.getElementById('password').value;
+            const context = document.getElementById('context').value;
+            const date = today();
+            const title = document.getElementById('title').value;
+            const no = document.getElementById('no').value;
+
+            if(!password) {
+                alert('비밀번호를 입력해 주세요.');
+            } else if(!title) {
+                alert('제목을 입력해 주세요.');
+            } else if(!context) {
+                alert('내용을 입력해 주세요.');
+            } else if(checkPassword(password,no)==='n') {
+                alert('등록했던 비밀번호와 다릅니다!');
+            } else {
+                $.ajax({
+                    data: JSON.stringify({
+                        'context': context,
+                        'date': date,
+                        'title': title,
+                        'no': no
+                    }), 
+                    type: 'post', 
+                    dataType : 'html', 
+                    url: "/context/api/modify", 
+                    contentType: 'application/json', 
+                    success: (log) => {
+                        alert('수정완료');
+                        console.log('ajax '+log);
+                        location.href='/board';
+                    },
+                    error: (err) => {
+                        console.log(err)
+                    }
+                })
+            }
+        }
+
+        const deleteContext = () => {
+            if(confirm("정말로 삭제하시겠습니까?")) {
+                const no = document.getElementById('no').value;
+                const password = document.getElementById('password').value;
+
+                if(!checkPassword(password,no)) {
+                    alert('등록했던 비밀번호와 다릅니다!');
+                } else {
+                    $.ajax({
+                        data: JSON.stringify({
+                            'no': no
+                        }), 
+                        type: 'post', 
+                        dataType : 'html', 
+                        url: "/context/api/delete", 
+                        contentType: 'application/json', 
+                        success: (log) => {
+                            alert('삭제완료');
+                            console.log('ajax '+log);
+                            location.href='/board';
+                        },
+                        error: (err) => {
+                            console.log(err)
+                        }
+                    })
+                }
+            }
+        }
+
+    #support-container.container-fluid
+    p
+    table(class='table table-bordered')
+        tr
+            th(style='text-align:center ') 번호
+            td
+                input(
+                    type='text'
+                    value=result[0].no
+                    id='no'
+                    disabled
+                )
+            th(style='text-align:center ') 작성자 
+            td
+                input(
+                    type='text'
+                    value=result[0].writer
+                    id='writer'
+                    disabled
+                )
+            th(style='text-align:center') 비밀번호 
+            td
+                input(
+                    type="password"
+                    id='password'
+                    
+                )
+        tr
+            th(style='text-align:center') 제목 
+            td(colspan='5')
+                input(
+                    type='text'
+                    id='title'
+                    class='form-control'
+                    value=result[0].title
+                )
+        tr(height='300px')
+            th(style='text-align:center') 내용
+            td(colspan='5')
+                textarea(
+                    id='context'
+                    class='form-control'
+                    style='height:300px'
+                    cols='30'
+                ) #{result[0].context}
+
+    div(class='btn-toolbar pull-right')
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick='modifyContext()'
+        ) 수정
+
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick='deleteContext()'
+        ) 삭제
+
+        button.btn.btn-primary(
+            type='button'
+            class='btn mr-2'
+            onclick="location.href='/board'"
+        ) 취소

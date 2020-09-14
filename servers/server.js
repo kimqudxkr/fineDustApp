@@ -19,7 +19,7 @@ const server = net_server.createServer((client) => {
                    ('${receiveDataFormatJson.deviceId}', 
                     '${receiveDataFormatJson.windSpeed}', 
                     ${receiveDataFormatJson.windDirection}, 
-                    ${receiveDataFormatJson.temperature}, 
+                    ${receiveDataFormatJson.temperature},  
                     ${receiveDataFormatJson.humidity}, 
                     ${receiveDataFormatJson['PM1.0']}, 
                     ${receiveDataFormatJson['PM2.5']}, 

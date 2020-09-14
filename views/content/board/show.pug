@@ -15,7 +15,6 @@ block content
                     }, 
                     type: 'get', 
                     dataType : 'html', 
-                    async: false,
                     url: "/context/api/check", 
                     contentType: 'application/json', 
                     success: (para) => {
@@ -56,7 +55,7 @@ block content
                     type: 'post', 
                     dataType : 'html', 
                     async: false,
-                    url: "/context/api/delete", 
+                    url: "/show/api/delete", 
                     contentType: 'application/json', 
                     success: (log) => {
                         alert('삭제완료');
