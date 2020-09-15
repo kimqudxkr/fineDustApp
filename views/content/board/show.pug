@@ -15,6 +15,7 @@ block content
                     }, 
                     type: 'get', 
                     dataType : 'html', 
+                    async: false,
                     url: "/context/api/check", 
                     contentType: 'application/json', 
                     success: (para) => {
@@ -54,7 +55,6 @@ block content
                     }), 
                     type: 'post', 
                     dataType : 'html', 
-                    async: false,
                     url: "/show/api/delete", 
                     contentType: 'application/json', 
                     success: (log) => {
