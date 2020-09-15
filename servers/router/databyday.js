@@ -45,11 +45,10 @@ const range = ['PM10_0 <= 30', 'PM10_0 > 30 AND PM10_0 <= 80', 'PM10_0 > 80 AND 
 const countQuery = (time) => {
   let subQuery='';
   for(let i=0; i<range.length; i++) {
-    subQuery += `(SELECT COUNT(*) as data FROM (
-      (SELECT * FROM finedust_tb WHERE `;
+    subQuery += `(SELECT COUNT(*) as data FROM finedust_tb WHERE `;
     if(time)
       subQuery += time;
-    subQuery += ` ${range[i]})t)) union all `
+    subQuery += ` ${range[i]}) union all `
   }
   let query2 = `SELECT * FROM (` + subQuery;
   let resQuery = query2.substring(0,query2.length-11) + `)t`;
@@ -184,20 +183,29 @@ router.get('/api/search/count', (req, res, next) => {
 
   let timeQuery = ` ${time} AND `;
 
-  connection.query(countQuery(timeQuery), (err, rows, fields) => {
+  // countQuery(timeQuery)
+  connection.query(`select count(case when PM10_0 <= 30 AND ${time} then 1 end) as fd_gd,
+  count(case when PM10_0 > 30 and PM10_0 <= 80 AND ${time} then 1 end) as fd_nm,
+      count(case when PM10_0 > 80 and PM10_0 <= 150 AND ${time} then 1 end) as fd_bd,
+      count(case when PM10_0 > 150 AND ${time} then 1 end) as fd_vb,
+      count(case when PM2_5 <= 15 AND ${time} then 1 end) as ufd_gd,
+  count(case when PM2_5 > 15 and PM2_5 <= 35 AND ${time} then 1 end) as ufd_nm,
+      count(case when PM2_5 > 35 and PM2_5 <= 75 AND ${time} then 1 end) as ufd_bd,
+      count(case when PM2_5 > 75 AND ${time} then 1 end) as ufd_vb
+from finedust_tb;`, (err, rows, fields) => {
     if (!err) {
       let html = `
-      <div class="row">미세먼지 - |
-        <div class="col-2">좋음 : ${rows[0].data}회</div>
-        <div class="col-2">보통 : ${rows[1].data}회</div>
-        <div class="col-2">나쁨 : ${rows[2].data}회</div>
-        <div class="col-2">매우나쁨 : ${rows[3].data}회</div>
+      <div class="row">&nbsp;&nbsp;미세먼지&nbsp;&nbsp; - |
+        <div class="col-2">좋음 : ${rows[0].fd_gd}회</div>
+        <div class="col-2">보통 : ${rows[0].fd_nm}회</div>
+        <div class="col-2">나쁨 : ${rows[0].fd_bd}회</div>
+        <div class="col-2">매우나쁨 : ${rows[0].fd_vb}회</div>
       </div>
       <div class="row">초미세먼지 - |
-        <div class="col-2">좋음 : ${rows[4].data}회</div>
-        <div class="col-2">보통 : ${rows[5].data}회</div>
-        <div class="col-2">나쁨 : ${rows[6].data}회</div>
-        <div class="col-2">매우나쁨 : ${rows[7].data}회</div>
+        <div class="col-2">좋음 : ${rows[0].ufd_gd}회</div>
+        <div class="col-2">보통 : ${rows[0].ufd_nm}회</div>
+        <div class="col-2">나쁨 : ${rows[0].ufd_bd}회</div>
+        <div class="col-2">매우나쁨 : ${rows[0].ufd_vb}회</div>
       </div>
       `
       res.send(html);
